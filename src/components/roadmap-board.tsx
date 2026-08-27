@@ -387,7 +387,7 @@ function RoadmapColumn({
                     setEditForm((prev) => ({ ...prev, projectId: value }))
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="选择项目标签" />
                   </SelectTrigger>
                   <SelectContent>
@@ -651,7 +651,7 @@ export function RoadmapBoard() {
                   setForm((prev) => ({ ...prev, status: value }))
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -672,7 +672,7 @@ export function RoadmapBoard() {
                     setForm((prev) => ({ ...prev, projectId: value }))
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="选择项目标签" />
                   </SelectTrigger>
                   <SelectContent>

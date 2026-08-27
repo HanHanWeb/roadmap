@@ -1,13 +1,14 @@
 # 项目路线图 Roadmap
 
-[![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=nextdotjs)](https://nextjs.org)
-[![React](https://img.shields.io/badge/React-18.3-61DAFB?logo=react&logoColor=black)](https://react.dev)
+[![Next.js](https://img.shields.io/badge/Next.js-16.2-black?logo=nextdotjs)](https://nextjs.org)
+[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![shadcn/ui](https://img.shields.io/badge/shadcn%2Fui-原生组件样式-000000)](https://ui.shadcn.com)
 [![Radix UI](https://img.shields.io/badge/Radix_UI-无障碍组件原语-EBABF1)](https://www.radix-ui.com)
 [![Drizzle ORM](https://img.shields.io/badge/Drizzle_ORM-TypeSafe_SQLite-C5F74F?logo=drizzle&logoColor=black)](https://orm.drizzle.team)
 [![libSQL](https://img.shields.io/badge/libSQL-Turso-4E2BE8)](https://turso.tech)
-[![Node.js](https://img.shields.io/badge/Node.js-20%2B-339933?logo=nodedotjs&logoColor=white)](https://nodejs.org)
+[![Node.js](https://img.shields.io/badge/Node.js-20.9%2B-339933?logo=nodedotjs&logoColor=white)](https://nodejs.org)
 
 一个轻量的公开项目路线图与功能投票平台：访客可以查看开发进展、为自己期待的功能投票、提议新功能，管理员负责维护路线图内容。
 
@@ -24,8 +25,8 @@
 
 | 层级 | 技术 |
 | --- | --- |
-| 应用框架 | [Next.js 15](https://nextjs.org)（App Router，React Server Components） |
-| UI | [React 18](https://react.dev) · [Tailwind CSS](https://tailwindcss.com) · [Radix UI](https://www.radix-ui.com) · [lucide-react](https://lucide.dev) |
+| 应用框架 | [Next.js 16](https://nextjs.org)（App Router，React Server Components，默认 Turbopack） |
+| UI | [React 19](https://react.dev) · [shadcn/ui](https://ui.shadcn.com)（基于 Radix 原语的原生组件样式） · [Tailwind CSS 4](https://tailwindcss.com) · [lucide-react](https://lucide.dev) |
 | 语言 | [TypeScript 5](https://www.typescriptlang.org) |
 | ORM | [Drizzle ORM](https://orm.drizzle.team) |
 | 数据库 | [SQLite / libSQL](https://docs.turso.tech)，兼容 Turso 云端或任意 libSQL 实例 |
@@ -33,7 +34,7 @@
 
 ## 快速开始
 
-前置要求：Node.js 20+。
+前置要求：Node.js 20.9+（Next.js 16 的最低版本要求）。
 
 ```bash
 git clone <仓库地址>

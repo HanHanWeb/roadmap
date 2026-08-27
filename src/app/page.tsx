@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Header } from "@/components/header";
 import { VoteSection } from "@/components/vote-section";
@@ -66,7 +66,9 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <OAuthCallback />
+      <Suspense fallback={null}>
+        <OAuthCallback />
+      </Suspense>
       <Header />
       <main className="flex-1 container mx-auto px-4 py-8 max-w-7xl">
         <div className="text-center mb-8">
