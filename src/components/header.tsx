@@ -8,10 +8,9 @@ import { LogIn, LogOut, Shield, User, GitBranch } from "lucide-react";
 export function Header() {
   const { user, isAdmin, login, logout } = useApp();
 
-  const loginConfigured = !!(CASDOOR_CONFIG.serverUrl && CASDOOR_CONFIG.clientId);
-
   const handleCasdoorLogin = () => {
     const { serverUrl, clientId, appName, organizationName } = CASDOOR_CONFIG;
+    if (!serverUrl || !clientId) return;
     const redirectUri = `${window.location.origin}/`;
     const state = Math.random().toString(36).substring(2);
     const url = `${serverUrl}/login/oauth/authorize?client_id=${clientId}&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}&scope=openid profile email&organization=${organizationName}&application=${appName}`;
@@ -46,12 +45,12 @@ export function Header() {
                 <span className="hidden sm:inline">退出</span>
               </Button>
             </>
-          ) : loginConfigured ? (
+          ) : (
             <Button variant="outline" size="sm" onClick={handleCasdoorLogin}>
               <LogIn className="h-4 w-4 sm:mr-1" />
               <span className="hidden sm:inline">登录</span>
             </Button>
-          ) : null}
+          )}
         </div>
       </div>
     </header>
