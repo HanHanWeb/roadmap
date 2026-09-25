@@ -35,7 +35,7 @@ import {
   ArrowRightCircle,
   Inbox,
   FolderOpen,
-  LayoutDashboard,
+  Map,
   Search,
   ArrowDownUp,
   Wand2,
@@ -60,9 +60,11 @@ const STATUS_ORDER: RoadmapStatus[] = [
 function RoadmapColumn({
   status,
   items,
+  sortBy,
 }: {
   status: RoadmapStatus;
   items: RoadmapItem[];
+  sortBy: "default" | "time" | "votes";
 }) {
   const {
     user,
@@ -157,6 +159,9 @@ function RoadmapColumn({
         const { index: fromIndex, status: fromStatus, itemId } = data;
 
         if (fromStatus === status) {
+          // 非默认排序下显示顺序与 sortOrder 无关，忽略同列重排
+          if (sortBy !== "default") return;
+
           const sortedItems = [...items].sort(
             (a, b) => a.sortOrder - b.sortOrder
           );
@@ -179,7 +184,6 @@ function RoadmapColumn({
             description: "",
             status,
             votes: 0,
-            votedBy: [],
             sortOrder: 0,
             projectId: null,
             createdAt: "",
@@ -195,7 +199,7 @@ function RoadmapColumn({
         console.error("Drop failed:", err);
       }
     },
-    [items, status, moveRoadmapItem, reorderRoadmapItems]
+    [items, status, sortBy, moveRoadmapItem, reorderRoadmapItems]
   );
 
   const handleColumnDrop = useCallback(
@@ -217,11 +221,16 @@ function RoadmapColumn({
     [status, moveRoadmapItem]
   );
 
-  const sortedItems = [...items].sort((a, b) => a.sortOrder - b.sortOrder);
+  const sortedItems = [...items].sort((a, b) => {
+    if (sortBy === "votes") return b.votes - a.votes;
+    if (sortBy === "time")
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    return a.sortOrder - b.sortOrder;
+  });
 
   return (
-    <div className="flex flex-col w-full min-w-0 sm:min-w-[260px] sm:flex-1 border border-gray-200 rounded-lg">
-      <div className={`rounded-t-lg px-4 py-3 border-b border-gray-200 ${config.bgColor}`}>
+    <div className="flex flex-col w-full min-w-0 sm:min-w-[260px] sm:flex-1 border border-border rounded-lg">
+      <div className={`rounded-t-lg px-4 py-3 border-b border-border ${config.bgColor}`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className={config.color}>{STATUS_ICONS[status]}</span>
@@ -236,7 +245,7 @@ function RoadmapColumn({
       </div>
 
       <div
-        className="flex-1 bg-white rounded-b-lg p-3 space-y-2 min-h-[200px]"
+        className="flex-1 bg-card rounded-b-lg p-3 space-y-2 min-h-[200px]"
         onDragOver={(e) => {
           e.preventDefault();
           e.dataTransfer.dropEffect = "move";
@@ -547,8 +556,8 @@ export function RoadmapBoard() {
   return (
     <section>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
-        <h2 className="text-lg font-semibold flex items-center gap-2 shrink-0">
-          <LayoutDashboard className="h-5 w-5 text-primary" />
+        <h2 className="text-lg font-semibold flex items-center gap-2 shrink-0 text-primary">
+          <Map className="h-5 w-5" />
           项目路线图
         </h2>
         <div className="flex flex-wrap items-center gap-2 sm:flex-1 sm:justify-end">
@@ -593,6 +602,7 @@ export function RoadmapBoard() {
             key={status}
             status={status}
             items={filteredItems.filter((item) => item.status === status)}
+            sortBy={sortBy}
           />
         ))}
       </div>
@@ -721,7 +731,7 @@ export function RoadmapBoard() {
               <div className="shrink-0">
                 <button
                   type="button"
-                  className="w-9 h-9 rounded-full border-2 border-gray-200 transition-transform hover:scale-110"
+                  className="w-9 h-9 rounded-full border-2 border-border transition-transform hover:scale-110"
                   style={{ backgroundColor: projectForm.color }}
                   onClick={() => setShowColorPicker(!showColorPicker)}
                 />
@@ -736,7 +746,7 @@ export function RoadmapBoard() {
               )}
             </div>
             {showColorPicker && (
-              <div className="p-2 bg-white rounded-lg border grid grid-cols-6 sm:grid-cols-10 gap-1.5">
+              <div className="p-2 bg-popover rounded-lg border grid grid-cols-6 sm:grid-cols-10 gap-1.5">
                 {["#ef4444","#f97316","#f59e0b","#eab308","#84cc16","#22c55e","#14b8a3","#06b6d4","#38b6ff","#3f9bfb","#6366f1","#8b5cf6","#a855f7","#d946ef","#ec4899","#f43f5e","#6b7280","#374151","#000000"].map((c) => (
                   <button
                     key={c}

@@ -1,7 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-
+import { isAdminRequest } from "@/lib/auth";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
+  if (!isAdminRequest(request)) {
+    return NextResponse.json({ ok: false, message: "需要管理员登录" }, { status: 401 });
+  }
+  if (!rateLimit(`polish:${getClientIp(request)}`, 10, 60_000)) {
+    return NextResponse.json({ ok: false, message: "请求过于频繁，请稍后再试" }, { status: 429 });
+  }
+
   try {
     const { description } = await request.json();
 
@@ -48,9 +56,8 @@ export async function POST(request: NextRequest) {
     });
 
     if (!response.ok) {
-      const errorBody = await response.text();
       return NextResponse.json(
-        { ok: false, message: `AI 服务请求失败: ${response.status} ${errorBody}` },
+        { ok: false, message: `AI 服务请求失败: ${response.status}` },
         { status: 502 }
       );
     }
@@ -66,8 +73,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ ok: true, data: polished });
-  } catch (error: unknown) {
-    const message = error instanceof Error ? `${error.message} (${error.stack?.split('\n')[1]?.trim()})` : "润色失败";
-    return NextResponse.json({ ok: false, message, env: !!process.env.OPENAI_API_KEY }, { status: 500 });
+  } catch {
+    return NextResponse.json({ ok: false, message: "润色失败" }, { status: 500 });
   }
 }

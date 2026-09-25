@@ -109,7 +109,7 @@ export function VoteSection() {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Lightbulb className="h-5 w-5 text-yellow-500" />
-          <h2 className="text-lg font-semibold">功能投票</h2>
+          <h2 className="text-lg font-semibold text-yellow-500">功能投票</h2>
           <Badge variant="secondary">{voteRequests.length} 个提议</Badge>
         </div>
         {user && (
@@ -120,7 +120,7 @@ export function VoteSection() {
         )}
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-2.5">
         {sortedRequests.map((req, index) => {
           const percentage = maxVotes > 0 ? (req.votes / maxVotes) * 100 : 0;
           const hasVoted = votedSet.has(`vote_request:${req.id}`);
@@ -147,28 +147,23 @@ export function VoteSection() {
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-sm">
-                          <Badge variant="default" className="mr-1 text-[10px] px-1.5 py-0">#{index + 1}</Badge>
-                          {req.title}
-                        </h3>
-                        {req.description && (
-                          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                            {req.description}
-                          </p>
-                        )}
-                      </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground shrink-0 tabular-nums">
+                        #{index + 1}
+                      </span>
+                      <h3 className="font-medium text-sm truncate flex-1 min-w-0">
+                        {req.title}
+                      </h3>
                       {user && (
-                        <div className="flex items-center gap-1 shrink-0">
+                        <div className="flex items-center gap-0.5 shrink-0">
                           {isAdmin && (
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="h-7 text-xs"
+                              className="h-7 px-2 text-xs"
                               onClick={() => setPromotingId(req.id)}
                             >
-                              <ArrowRight className="h-3 w-3 mr-1" />
+                              <ArrowRight className="h-3 w-3 mr-0.5" />
                               转为任务
                             </Button>
                           )}
@@ -192,18 +187,22 @@ export function VoteSection() {
                       )}
                     </div>
 
-                    <div className="mt-2">
-                      <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+                    {req.description && (
+                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                        {req.description}
+                      </p>
+                    )}
+
+                    <div className="flex items-center gap-2 mt-2">
+                      <div className="flex-1 bg-muted rounded-full h-1.5 overflow-hidden">
                         <div
                           className="h-full rounded-full bg-primary transition-all duration-500 ease-out"
                           style={{ width: `${percentage}%` }}
                         />
                       </div>
-                      <div className="flex justify-end mt-1">
-                        <span className="text-xs text-muted-foreground">
-                          {percentage.toFixed(0)}%
-                        </span>
-                      </div>
+                      <span className="text-[10px] text-muted-foreground shrink-0 w-8 text-right tabular-nums">
+                        {percentage.toFixed(0)}%
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -211,6 +210,15 @@ export function VoteSection() {
             </Card>
           );
         })}
+
+        {sortedRequests.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-10 border border-dashed rounded-lg text-center">
+            <Lightbulb className="h-8 w-8 text-muted-foreground/50 mb-2" />
+            <p className="text-sm text-muted-foreground">
+              还没有功能提议，欢迎提出第一个想法
+            </p>
+          </div>
+        )}
       </div>
 
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>

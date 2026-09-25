@@ -4,6 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  color-scheme: light;
   --radius: 0.625rem;
   --background: hsl(0 0% 100%);
   --foreground: hsl(240 10% 3.9%);
@@ -33,6 +34,7 @@
 }
 
 .dark {
+  color-scheme: dark;
   --background: hsl(240 10% 3.9%);
   --foreground: hsl(0 0% 98%);
   --card: hsl(240 10% 3.9%);
@@ -91,13 +93,6 @@
   * {
     @apply border-border outline-ring/50;
     box-sizing: border-box;
-  }
-  *::-webkit-scrollbar {
-    display: none;
-  }
-  * {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
   }
   body {
     @apply bg-background text-foreground antialiased;

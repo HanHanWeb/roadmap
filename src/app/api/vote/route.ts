@@ -37,44 +37,63 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const [existing] = await db
-      .select()
-      .from(votes)
-      .where(
-        and(
-          eq(votes.userId, user_id),
-          eq(votes.targetType, targetType),
-          eq(votes.targetId, targetId)
-        )
+    if (targetType !== "roadmap" && targetType !== "vote_request") {
+      return NextResponse.json(
+        { ok: false, message: "无效的投票类型" },
+        { status: 400 }
       );
-
-    if (existing) {
-      await db
-        .delete(votes)
-        .where(eq(votes.id, existing.id));
-
-      const table = targetType === "roadmap" ? roadmapItems : voteRequests;
-      await db
-        .update(table)
-        .set({ votes: sql`${table.votes} - 1` })
-        .where(eq(table.id, targetId));
-
-      return NextResponse.json({ ok: true, voted: false });
     }
 
-    await db.insert(votes).values({
-      userId: user_id,
-      targetType,
-      targetId,
+    const result = await db.transaction(async (tx) => {
+      const table = targetType === "roadmap" ? roadmapItems : voteRequests;
+      const [target] = await tx
+        .select()
+        .from(table)
+        .where(eq(table.id, targetId));
+
+      if (!target) return null;
+
+      const [existing] = await tx
+        .select()
+        .from(votes)
+        .where(
+          and(
+            eq(votes.userId, user_id),
+            eq(votes.targetType, targetType),
+            eq(votes.targetId, targetId)
+          )
+        );
+
+      if (existing) {
+        await tx.delete(votes).where(eq(votes.id, existing.id));
+        await tx
+          .update(table)
+          .set({ votes: sql`max(0, ${table.votes} - 1)` })
+          .where(eq(table.id, targetId));
+        return { voted: false };
+      }
+
+      await tx.insert(votes).values({
+        userId: user_id,
+        targetType,
+        targetId,
+        createdAt: new Date().toISOString(),
+      });
+      await tx
+        .update(table)
+        .set({ votes: sql`${table.votes} + 1` })
+        .where(eq(table.id, targetId));
+      return { voted: true };
     });
 
-    const table = targetType === "roadmap" ? roadmapItems : voteRequests;
-    await db
-      .update(table)
-      .set({ votes: sql`${table.votes} + 1` })
-      .where(eq(table.id, targetId));
+    if (!result) {
+      return NextResponse.json(
+        { ok: false, message: "投票目标不存在" },
+        { status: 404 }
+      );
+    }
 
-    return NextResponse.json({ ok: true, voted: true });
+    return NextResponse.json({ ok: true, ...result });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "投票失败";
     return NextResponse.json({ ok: false, message }, { status: 500 });

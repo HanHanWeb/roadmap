@@ -15,7 +15,6 @@ import type {
   RoadmapStatus,
   Project,
 } from "@/types";
-import { ADMIN_EMAILS } from "@/lib/casdoor";
 
 interface VotedItem {
   targetType: string;
@@ -108,7 +107,6 @@ function mapRoadmapRow(row: DbRoadmapRow): RoadmapItem {
     description: row.description,
     status: row.status,
     votes: row.votes,
-    votedBy: [],
     sortOrder: row.sort_order ?? 0,
     projectId: row.project_id ?? null,
     createdAt: row.created_at,
@@ -224,19 +222,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [hydrated, fetchAll, fetchVotes, user]);
 
-  const isAdmin =
-    !!user && (user.isAdmin || ADMIN_EMAILS.includes(user.email));
+  const isAdmin = !!user && user.isAdmin;
 
   const login = useCallback((newUser: User) => {
-    const admin = ADMIN_EMAILS.includes(newUser.email) || newUser.isAdmin;
-    const userWithAdmin = { ...newUser, isAdmin: admin };
-    setUser(userWithAdmin);
-    localStorage.setItem("roadmap_user", JSON.stringify(userWithAdmin));
+    setUser(newUser);
+    localStorage.setItem("roadmap_user", JSON.stringify(newUser));
   }, []);
 
   const logout = useCallback(() => {
     setUser(null);
     localStorage.removeItem("roadmap_user");
+    fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
   }, []);
 
   const addRoadmapItem = useCallback(
@@ -357,26 +353,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const promoteVoteRequest = useCallback(
     async (requestId: string, status: RoadmapStatus) => {
-      const req = voteRequests.find((r) => r.id === requestId);
-      if (!req) return;
-
-      await fetch("/api/roadmap", {
+      await fetch("/api/vote-requests/promote", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: req.title,
-          description: req.description,
-          status,
-        }),
+        body: JSON.stringify({ id: requestId, status }),
       });
-
-      await fetch(`/api/vote-requests?id=${requestId}`, {
-        method: "DELETE",
-      });
-
       await fetchAll();
     },
-    [voteRequests, fetchAll]
+    [fetchAll]
   );
 
   const reorderRoadmapItems = useCallback(

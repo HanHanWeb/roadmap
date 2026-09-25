@@ -13,7 +13,6 @@ export interface RoadmapItem {
   description: string;
   status: RoadmapStatus;
   votes: number;
-  votedBy: string[];
   sortOrder: number;
   projectId: string | null;
   createdAt: string;
@@ -44,23 +43,23 @@ export const STATUS_CONFIG: Record<
 > = {
   backlog: {
     label: "待办池",
-    color: "text-gray-600",
-    bgColor: "bg-[#fcfcfc]",
+    color: "text-gray-600 dark:text-gray-300",
+    bgColor: "bg-[#fcfcfc] dark:bg-muted/40",
   },
   next_up: {
     label: "即将开始",
     color: "text-nextup",
-    bgColor: "bg-[#fcfcfc]",
+    bgColor: "bg-[#fcfcfc] dark:bg-muted/40",
   },
   in_progress: {
     label: "进行中",
-    color: "text-amber-600",
-    bgColor: "bg-[#fcfcfc]",
+    color: "text-amber-600 dark:text-amber-400",
+    bgColor: "bg-[#fcfcfc] dark:bg-muted/40",
   },
   done: {
     label: "已完成",
-    color: "text-green-600",
-    bgColor: "bg-[#fcfcfc]",
+    color: "text-green-600 dark:text-green-400",
+    bgColor: "bg-[#fcfcfc] dark:bg-muted/40",
   },
 };
 

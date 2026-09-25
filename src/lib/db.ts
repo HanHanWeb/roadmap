@@ -3,16 +3,21 @@ import { drizzle } from "drizzle-orm/libsql";
 import { randomUUID } from "node:crypto";
 import * as schema from "./schema";
 
+let instance: ReturnType<typeof drizzle<typeof schema>> | null = null;
+
 function getDb() {
-  const url = process.env.TURSO_DATABASE_URL;
-  if (!url) {
-    throw new Error("TURSO_DATABASE_URL environment variable is not set");
+  if (!instance) {
+    const url = process.env.TURSO_DATABASE_URL;
+    if (!url) {
+      throw new Error("TURSO_DATABASE_URL environment variable is not set");
+    }
+    const client = createClient({
+      url,
+      authToken: process.env.TURSO_AUTH_TOKEN,
+    });
+    instance = drizzle(client, { schema });
   }
-  const client = createClient({
-    url,
-    authToken: process.env.TURSO_AUTH_TOKEN,
-  });
-  return drizzle(client, { schema });
+  return instance;
 }
 
 export const db = new Proxy({} as ReturnType<typeof drizzle<typeof schema>>, {

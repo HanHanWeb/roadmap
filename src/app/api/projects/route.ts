@@ -3,7 +3,11 @@ import { db } from "@/lib/db";
 import { projects, roadmapItems } from "@/lib/schema";
 import { eq, asc } from "drizzle-orm";
 import { generateId } from "@/lib/db";
+import { isAdminRequest } from "@/lib/auth";
 
+function unauthorized() {
+  return NextResponse.json({ ok: false, message: "需要管理员登录" }, { status: 401 });
+}
 
 export async function GET() {
   try {
@@ -16,6 +20,7 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  if (!isAdminRequest(request)) return unauthorized();
   try {
     const body = await request.json();
     const { name, color } = body;
@@ -43,6 +48,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
+  if (!isAdminRequest(request)) return unauthorized();
   try {
     const body = await request.json();
     const { id, name, color } = body;
@@ -75,6 +81,7 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  if (!isAdminRequest(request)) return unauthorized();
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");

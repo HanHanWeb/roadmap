@@ -1,20 +1,56 @@
 "use client";
 
 import { useApp } from "@/hooks/use-app";
-import { CASDOOR_CONFIG } from "@/lib/casdoor";
 import { Button } from "@/components/ui/button";
-import { LogIn, LogOut, Shield, User, GitBranch } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { LogIn, LogOut, GitBranch, Loader2 } from "lucide-react";
+import { useState } from "react";
 
 export function Header() {
-  const { user, isAdmin, login, logout } = useApp();
+  const { user, login, logout } = useApp();
+  const [showLogin, setShowLogin] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleCasdoorLogin = () => {
-    const { serverUrl, clientId, appName, organizationName } = CASDOOR_CONFIG;
-    if (!serverUrl || !clientId) return;
-    const redirectUri = `${window.location.origin}/`;
-    const state = Math.random().toString(36).substring(2);
-    const url = `${serverUrl}/login/oauth/authorize?client_id=${clientId}&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}&scope=openid profile email&organization=${organizationName}&application=${appName}`;
-    window.location.href = url;
+  const handleLogin = async () => {
+    if (!email.trim() || !password) {
+      setError("请输入邮箱和密码");
+      return;
+    }
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (data.ok && data.user) {
+        login(data.user);
+        setShowLogin(false);
+        setEmail("");
+        setPassword("");
+      } else {
+        setError(data.message || "登录失败");
+      }
+    } catch {
+      setError("登录失败，请重试");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -26,33 +62,62 @@ export function Header() {
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3">
+          <ThemeToggle />
           {user ? (
-            <>
-              <div className="flex items-center gap-2 text-sm">
-                {isAdmin && (
-                  <span className="hidden sm:flex items-center gap-1 text-amber-600 bg-amber-50 px-2 py-1 rounded-full text-xs font-medium">
-                    <Shield className="h-3 w-3" />
-                    管理员
-                  </span>
-                )}
-                <span className="hidden sm:flex items-center gap-1 text-muted-foreground min-w-0">
-                  <User className="h-4 w-4 shrink-0" />
-                  <span className="truncate max-w-[140px] sm:max-w-none">{user.email}</span>
-                </span>
-              </div>
-              <Button variant="outline" size="sm" onClick={logout}>
-                <LogOut className="h-4 w-4 sm:mr-1" />
-                <span className="hidden sm:inline">退出</span>
-              </Button>
-            </>
+            <Button variant="outline" size="sm" onClick={logout}>
+              <LogOut className="h-4 w-4 sm:mr-1" />
+              <span className="hidden sm:inline">退出</span>
+            </Button>
           ) : (
-            <Button variant="outline" size="sm" onClick={handleCasdoorLogin}>
+            <Button variant="outline" size="sm" onClick={() => setShowLogin(true)}>
               <LogIn className="h-4 w-4 sm:mr-1" />
               <span className="hidden sm:inline">登录</span>
             </Button>
           )}
         </div>
       </div>
+
+      <Dialog open={showLogin} onOpenChange={setShowLogin}>
+        <DialogContent className="sm:max-w-[360px]">
+          <DialogHeader>
+            <DialogTitle>登录</DialogTitle>
+            <DialogDescription>
+              访客无需登录即可浏览和投票，登录后可管理内容
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="login-email">邮箱</Label>
+              <Input
+                id="login-email"
+                type="email"
+                placeholder="admin@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="login-password">密码</Label>
+              <Input
+                id="login-password"
+                type="password"
+                placeholder="输入密码"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+              />
+            </div>
+            {error && <p className="text-sm text-destructive">{error}</p>}
+          </div>
+          <DialogFooter>
+            <Button onClick={handleLogin} disabled={loading} className="w-full">
+              {loading && <Loader2 className="h-4 w-4 mr-1 animate-spin" />}
+              登录
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </header>
   );
 }
