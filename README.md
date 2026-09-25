@@ -42,7 +42,7 @@
 前置要求：Node.js 20.9+（Next.js 16 的最低版本要求）。
 
 ```bash
-git clone <仓库地址>
+git clone https://github.com/HanHanWeb/roadmap.git
 cd roadmap
 npm install
 ```
