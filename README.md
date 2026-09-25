@@ -14,7 +14,7 @@
 
 ## 项目预览
 
-![项目路线图预览](https://picui.ogmua.cn/s1/2026/08/27/6a9032520c19a.webp)
+![项目路线图预览](docs/preview.png)
 
 ## 功能特性
 
